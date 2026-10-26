@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>SHADOW QUEST | Secret Game</title>
+
+<style>
+*{box-sizing:border-box}
+:root{--cyan:#50f5ff;--green:#57ff9b;--pink:#ff438d}
+body{
+ margin:0;background:#030711;color:white;
+ font-family:Arial,sans-serif;min-height:100vh;
+ touch-action:manipulation
+}
+main{width:100%;max-width:760px;margin:auto;padding:14px}
+.screen{
+ background:linear-gradient(145deg,#0c1830,#060b18);
+ border:1px solid #21486b;border-radius:18px;
+ padding:20px;box-shadow:0 0 25px #00e5ff12;
+}
+.center{text-align:center}
+.hidden{display:none!important}
+h1,h2{color:var(--cyan);text-shadow:0 0 14px #00d9ff77}
+h1{font-size:clamp(24px,7vw,39px)}
+p{line-height:1.7;color:#cbd9f2}
+button{
+ background:#102b45;color:white;border:1px solid var(--cyan);
+ border-radius:12px;padding:14px 20px;font-size:16px;
+ font-weight:bold;cursor:pointer;touch-action:manipulation
+}
+button:active{transform:scale(.97);background:#15516a}
+.primary{background:linear-gradient(110deg,#087f9e,#5938b5)}
+.picture{
+ width:100%;max-height:56vh;object-fit:contain;
+ display:block;margin:18px auto;border-radius:12px;
+ border:1px solid #2d5475;background:#02050b
+}
+#terminal{
+ color:var(--green);font:14px/1.9 monospace;
+ white-space:pre-wrap;text-align:left;min-height:100px;
+ overflow-wrap:anywhere
+}
+.hud{display:flex;justify-content:space-between;gap:8px;margin-bottom:12px}
+.hud span{background:#10213b;padding:9px;border-radius:9px;font-size:13px}
+canvas{
+ display:block;width:100%;height:auto;aspect-ratio:2/1;
+ border:1px solid #315d85;border-radius:12px;
+ background:#080f27
+}
+#jumpBtn{width:100%;margin-top:12px;font-size:19px}
+#bar{height:10px;background:#172744;border-radius:20px;overflow:hidden;margin:22px 0}
+#fill{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink))}
+.small{font-size:12px;color:#9ab2d0}
+</style>
+</head>
+
+<body>
+<main>
+
+<!-- প্রথম স্ক্রিন -->
+<section id="welcome" class="screen center">
+ <h1>⚠ ACCESS RESTRICTED ⚠</h1>
+ <p>আপনে ছেলে হলে গেমটা আপনার জন্য।<br>
+ মেয়েরা আর এগোবেন না।</p>
+ <p class="small">আপনি কি গেমটি খেলতে প্রস্তুত?</p>
+ <button class="primary" id="yesBtn">হ্যাঁ, আমি ছেলে</button>
+</section>
+
+<!-- হ্যাকিং ইন্ট্রো -->
+<section id="intro" class="screen hidden">
+ <h2>▌ SYSTEM BREACH</h2>
+ <div id="terminal"></div>
+ <button id="enterBtn" class="primary hidden">গেমটা খেল ▶</button>
+</section>
+
+<!-- হোমপেজ -->
+<section id="home" class="screen center hidden">
+ <h1>SHADOW QUEST</h1>
+ <p>৮টি লেভেল পার করো। বাধা এড়িয়ে যাও এবং সব গোপন ছবি আনলক করো!</p>
+ <img class="picture" src="20261026_153019.png" alt="হোমপেজের প্রথম ছবি">
+ <button class="primary" id="startBtn">START ▶</button>
+</section>
+
+<!-- গেম -->
+<section id="game" class="screen hidden">
+ <div class="hud">
+  <span id="levelText">LEVEL 1 / 8</span>
+  <span id="obstacleText">বাধা: 0 / 10</span>
+ </div>
+ <canvas id="canvas" width="800" height="400"></canvas>
+ <button id="jumpBtn">⬆ লাফ দিন</button>
+ <p class="small center">ক্যারেক্টার দৌড়াবে। বাধার কাছে এলে লাফ দিন। কম্পিউটারে Space চাপুন।</p>
+</section>
+
+<!-- লেভেল সম্পন্ন -->
+<section id="completed" class="screen center hidden">
+ <h1 id="completeTitle">LEVEL COMPLETED</h1>
+ <p id="completeMessage">তুমি এই লেভেল সম্পূর্ণ করেছ!</p>
+ <img id="levelPicture" class="picture" src="" alt="লেভেল সম্পন্নের ছবি">
+ <button id="nextBtn" class="primary">পরের ধাপ →</button>
+</section>
+
+<!-- সব লেভেল সম্পন্ন -->
+<section id="allDone" class="screen center hidden">
+ <h1>YOUR ALL LEVEL COMPLETED</h1>
+ <div id="finalTerminal" class="center" style="color:#57ff9b;font-family:monospace;line-height:2">
+ > ALL LEVELS CLEARED<br>
+ > SECRET FILE DETECTED<br>
+ > READY TO UNLOCK
+ </div>
+ <p>তুমি সবগুলো লেভেল সম্পূর্ণ করেছ!</p>
+ <button class="primary" id="finalNext">NEXT →</button>
+</section>
+
+<!-- লোডিং -->
+<section id="loading" class="screen center hidden">
+ <h2>DECRYPTING SECRET FILE...</h2>
+ <div id="loadingText">৫ সেকেন্ড অপেক্ষা করুন</div>
+ <div id="bar"><div id="fill"></div></div>
+ <div id="loadingTerminal" style="color:#57ff9b;font:13px/2 monospace"></div>
+</section>
+
+<!-- সর্বশেষ ছবি -->
+<section id="finalScreen" class="screen center hidden">
+ <h1>🔓 SECRET UNLOCKED</h1>
+ <p>তোমার জন্য শেষ গোপন ছবিটি!</p>
+ <img class="picture" src="20261026_151512.jpg" alt="সর্বশেষ ছবি">
+ <button onclick="location.reload()">আবার শুরু করুন ↻</button>
+</section>
+
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+
+const screens=[
+'welcome','intro','home','game','completed',
+'allDone','loading','finalScreen'
+];
+
+function show(id){
+ screens.forEach(s=>$(s).classList.toggle('hidden',s!==id));
+ window.scrollTo(0,0);
+}
+
+// ছবির ক্রম: Level 1 থেকে Level 8
+const levelImages=[
+'20261026_152633.png',
+'20261026_152746.png',
+'20261026_152354.png',
+'20261026_152520.png',
+'20261026_152127.png',
+'20261026_152248.png',
+'20261026_151647.png',
+'20261026_151822.png'
+];
+
+// হ্যাকিং ইন্ট্রো
+const lines=[
+'> INITIALIZING GAME SYSTEM...',
+'> ACCESS CHECK: ACCEPTED',
+'> LOADING PLAYER DATA...',
+'> UNLOCKING 8 LEVELS...',
+'> SECRET IMAGES DETECTED...',
+'> SYSTEM READY!'
+];
+
+$('yesBtn').onclick=()=>{
+ show('intro');
+ $('terminal').textContent='';
+ $('enterBtn').classList.add('hidden');
+ let i=0;
+
+ const timer=setInterval(()=>{
+  $('terminal').textContent+=lines[i]+'\n';
+  i++;
+  if(i>=lines.length){
+   clearInterval(timer);
+   $('enterBtn').classList.remove('hidden');
+  }
+ },550);
+};
+
+$('enterBtn').onclick=()=>show('home');
+
+// গেমের অবস্থা
+const canvas=$('canvas');
+const ctx=canvas.getContext('2d');
+
+let level=1,passed=0,required=10;
+let player,obstacles,world,speed,running=false;
+let raf=0,last=0,particles=[],frame=0;
+
+function startLevel(){
+ cancelAnimationFrame(raf);
+
+ required=10+(level-1)*3;
+ passed=0;
+ world=0;
+ frame=0;
+ speed=4+(level-1)*0.25;
+
+ player={x:120,y:260,w:36,h:45,vy:0,ground:true};
+
+ // বাধাগুলো নির্দিষ্ট দূরত্বে তৈরি
+ obstacles=[];
+ for(let i=0;i<required;i++){
+  obstacles.push({
+   x:520+i*320,
+   w:28+Math.random()*12,
+   h:30+Math.random()*16,
+   passed:false
+  });
+ }
+
+ $('levelText').textContent=`LEVEL ${level} / 8`;
+ $('obstacleText').textContent=`বাধা: 0 / ${required}`;
+
+ show('game');
+ running=true;
+ last=performance.now();
+ raf=requestAnimationFrame(loop);
+}
+
+$('startBtn').onclick=()=>startLevel();
+
+function jump(){
+ if(!running||!player.ground)return;
+ player.vy=-13;
+ player.ground=false;
+}
+
+$('jumpBtn').addEventListener('pointerdown',e=>{
+ e.preventDefault();
+ jump();
+});
+
+document.addEventListener('keydown',e=>{
+ if(e.code==='Space'||e.code==='ArrowUp'){
+  e.preventDefault();
+  jump();
+ }
+});
+
+// গেম লুপ
+function loop(now){
+ if(!running)return;
+ const dt=Math.min((now-last)/16.67,2);
+ last=now;
+
+ update(dt);
+ draw();
+
+ if(running)raf=requestAnimationFrame(loop);
+}
+
+function update(dt){
+ frame+=dt;
+ world+=speed*dt;
+
+ player.vy+=0.65*dt;
+ player.y+=player.vy*dt;
+
+ if(player.y>=260){
+  player.y=260;
+  player.vy=0;
+  player.ground=true;
+ }
+
+ for(const o of obstacles){
+  const x=o.x-world;
+
+  // বাধা পার হয়েছে
+  if(!o.passed&&x+o.w<player.x){
+   o.passed=true;
+   passed++;
+
+   $('obstacleText').textContent=
+    `বাধা: ${passed} / ${required}`;
+
+   if(passed>=required){
+    finishLevel();
+    return;
+   }
+  }
+
+  // বাধায় ধাক্কা লাগলে আবার একই লেভেল
+  if(x<player.x+player.w&&x+o.w>player.x&&
+     player.y+player.h>300-o.h){
+   running=false;
+   cancelAnimationFrame(raf);
+
+   $('completeTitle').textContent='TRY AGAIN';
+   $('completeMessage').textContent=
+    'বাধায় ধাক্কা লেগেছে। আবার এই লেভেল খেলো।';
+   $('levelPicture').classList.add('hidden');
+   $('nextBtn').textContent='আবার চেষ্টা করো ↻';
+   show('completed');
+
+   retryMode=true;
+   return;
+  }
+ }
+}
+
+let retryMode=false;
+
+function finishLevel(){
+ running=false;
+ cancelAnimationFrame(raf);
+ retryMode=false;
+
+ $('completeTitle').textContent=`LEVEL ${level} COMPLETED`;
+ $('completeMessage').textContent=
+  `দারুণ! তুমি ${required}টি বাধা পার করেছ।`;
+
+ const img=$('levelPicture');
+ img.src=levelImages[level-1];
+ img.classList.remove('hidden');
+ img.onerror=()=>{img.alt='ছবি পাওয়া যায়নি: '+levelImages[level-1]};
+
+ $('nextBtn').textContent=
+  level===8?'সব লেভেল সম্পূর্ণ →':'পরের ধাপ →';
+
+ show('completed');
+}
+
+$('nextBtn').onclick=()=>{
+ if(retryMode){
+  retryMode=false;
+  startLevel();
+  return;
+ }
+
+ if(level<8){
+  level++;
+  startLevel();
+ }else{
+  show('allDone');
+ }
+};
+
+// ৫ সেকেন্ড লোডিং
+$('finalNext').onclick=()=>{
+ show('loading');
+
+ let seconds=5;
+ $('fill').style.width='0%';
+ $('loadingTerminal').textContent='> STARTING DECRYPTION...';
+
+ $('loadingText').textContent='৫ সেকেন্ড অপেক্ষা করুন';
+
+ const timer=setInterval(()=>{
+  seconds--;
+
+  $('loadingText').textContent=seconds>0?
+   `${seconds} সেকেন্ড অপেক্ষা করুন`:
+   'SECRET FILE UNLOCKED!';
+
+  $('fill').style.width=((5-seconds)/5*100)+'%';
+
+  $('loadingTerminal').textContent+=
+   '\n> '+['SCANNING','DECRYPTING','VERIFYING','UNLOCKING','COMPLETE'][5-seconds]+'...';
+
+  if(seconds<=0){
+   clearInterval(timer);
+   show('finalScreen');
+  }
+ },1000);
+};
+
+// গেম আঁকা
+function draw(){
+ const g=ctx,W=canvas.width,H=canvas.height;
+
+ g.clearRect(0,0,W,H);
+
+ const bg=g.createLinearGradient(0,0,0,H);
+ bg.addColorStop(0,'#101d46');
+ bg.addColorStop(1,'#24123c');
+
+ g.fillStyle=bg;
+ g.fillRect(0,0,W,H);
+
+ // তারার অ্যানিমেশন
+ for(let i=0;i<65;i++){
+  let x=(i*97-world*0.15)%W;
+  if(x<0)x+=W;
+
+  g.fillStyle=i%3===0?'#55f5ff':'#ffffff99';
+  g.fillRect(x,(i*47)%240,2,2);
+ }
+
+ // দূরের ভবন
+ for(let i=0;i<13;i++){
+  let x=(i*85-world*0.25)%W;
+  if(x< -80)x+=W;
+
+  g.fillStyle='#152748';
+  g.fillRect(x,200-(i*19%70),55,100);
+ }
+
+ // মাটির প্ল্যাটফর্ম
+ g.fillStyle='#172b4a';
+ g.fillRect(0,300,W,100);
+
+ g.fillStyle='#55f5ff';
+ g.fillRect(0,300,W,4);
+
+ // বাধা
+ for(const o of obstacles){
+  const x=o.x-world;
+  if(x< -50||x>W+50)continue;
+
+  g.shadowBlur=12;
+  g.shadowColor='#ff438d';
+  g.fillStyle='#ff438d';
+
+  g.beginPath();
+  g.moveTo(x,300);
+  g.lineTo(x+o.w/2,300-o.h);
+  g.lineTo(x+o.w,300);
+  g.fill();
+
+  g.shadowBlur=0;
+ }
+
+ // দৌড়ানো ক্যারেক্টার
+ const p=player;
+ const y=p.y+Math.sin(frame*0.3)*1.5;
+
+ g.shadowBlur=18;
+ g.shadowColor='#55f5ff';
+ g.fillStyle='#55eaff';
+ g.fillRect(p.x,y+7,p.w,p.h-7);
+ g.shadowBlur=0;
+
+ // চোখ
+ g.fillStyle='#102039';
+ g.fillRect(p.x+5,y+14,26,13);
+
+ g.fillStyle='white';
+ g.fillRect(p.x+9,y+17,5,5);
+ g.fillRect(p.x+23,y+17,5,5);
+
+ // স্কার্ফ
+ g.fillStyle='#ff438d';
+ g.beginPath();
+ g.moveTo(p.x+4,y+20);
+ g.lineTo(p.x-9-Math.sin(frame*.2)*5,y+30);
+ g.lineTo(p.x+5,y+29);
+ g.fill();
+
+ // পা
+ g.fillStyle='#ffda65';
+ const leg=Math.sin(frame*.4)*4;
+ g.fillRect(p.x+4,y+p.h-2,11,7+leg);
+ g.fillRect(p.x+22,y+p.h-2,11,7-leg);
+
+ g.fillStyle='white';
+ g.font='bold 15px monospace';
+ g.fillText(`LEVEL ${level}`,18,25);
+}
+
+show('welcome');
+</script>
+</body>
+  </html>
+  
