@@ -63,7 +63,7 @@ canvas{
 <section id="welcome" class="screen center">
  <h1>⚠ ACCESS RESTRICTED ⚠</h1>
  <p>আপনে ছেলে হলে গেমটা আপনার জন্য।<br>
- মেয়েরা দয়াকরে সামনে যাবেন না।</p>
+ মেয়েরা আর এগোবেন না।</p>
  <p class="small">আপনি কি গেমটি খেলতে প্রস্তুত?</p>
  <button class="primary" id="yesBtn">হ্যাঁ, আমি ছেলে</button>
 </section>
@@ -78,7 +78,7 @@ canvas{
 <!-- হোমপেজ -->
 <section id="home" class="screen center hidden">
  <h1>SHADOW QUEST</h1>
- <p>৮টি লেভেল জন্য ৮ টি ছবি প্রতিটা লেভেল পার আর একটি করে ছবি আনলোক করো!</p>
+ <p>৮টি লেভেল পার করো। বাধা এড়িয়ে যাও এবং সব গোপন ছবি আনলক করো!</p>
  <img class="picture" src="20261026_151512.jpg" alt="হোমপেজের প্রথম ছবি">
  <button class="primary" id="startBtn">START ▶</button>
 </section>
@@ -126,7 +126,7 @@ canvas{
 <section id="finalScreen" class="screen center hidden">
  <h1>🔓 SECRET UNLOCKED</h1>
  <p>তোমার জন্য শেষ গোপন ছবিটি!</p>
- <img class="picture" src="20261026_153019.png" alt="সর্বশেষ ছবি">
+ <img class="picture" src=20261026_153019.png" alt="সর্বশেষ ছবি">
  <button onclick="location.reload()">আবার শুরু করুন ↻</button>
 </section>
 
@@ -147,27 +147,24 @@ function show(id){
 
 // ছবির ক্রম: Level 1 থেকে Level 8
 const levelImages=[
+'20261026_151822.png',
+'20261026_152746.png',
 '20261026_152354.png',
+'20261026_152520.png',
 '20261026_152127.png',
 '20261026_152248.png',
 '20261026_151647.png',
-'20261026_151822.png',
-'20261026_152633.png',
- '20261026_152520.png',
- '20261026_152746.png'
+'20261026_152633.png'
 ];
 
 // হ্যাকিং ইন্ট্রো
 const lines=[
-'> Developer NAME...',
-'> RAKIB...',
-'> ONLY 18+ ENTER THIS GAME...',
+'> INITIALIZING GAME SYSTEM...',
+'> ACCESS CHECK: ACCEPTED',
+'> LOADING PLAYER DATA...',
 '> UNLOCKING 8 LEVELS...',
 '> SECRET IMAGES DETECTED...',
-'> SYSTEM READY!...',
-'> THIS GAME NOT ANOTHER PLAY KIDS...',
-'> SPECIAL NOTICE...',
-'> এই গেমটা বাচ্চাদের জন্য না ,
+'> SYSTEM READY!'
 ];
 
 $('yesBtn').onclick=()=>{
@@ -471,4 +468,4 @@ show('welcome');
 </script>
 </body>
  </html>
-  
+ 
